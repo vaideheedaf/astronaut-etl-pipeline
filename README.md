@@ -1,8 +1,8 @@
 # 🚀 Astronaut ETL Pipeline
 
 ## Overview
-This project extracts astronaut data from the Open Notify API, transforms it using Pandas, and loads it into PostgreSQL.
 
+Tracks all humans currently in space in real-time, storing their name, spacecraft, and extraction timestamp into a PostgreSQL database
 ## Tech Stack
 - Python
 - Requests
