@@ -1,9 +1,13 @@
+from dotenv import load_dotenv
+import os
+load_dotenv()
+print(os.getenv("DB_PASSWORD"))
 import requests
 import pandas as pd
 import psycopg2
 from datetime import datetime
-
-# ---- EXTRACT ----
+print("THIS IS THE NEW FILE")
+# EXTRACT
 def extract():
     url = "http://api.open-notify.org/astros.json"
     response = requests.get(url)
@@ -22,23 +26,26 @@ def transform(data):
     print("Transform successful")
     print(df)
     return df
-# ---- LOAD ----
+#  LOAD 
 def load(df):
     print("entered load()")
     conn = psycopg2.connect(
-        host="localhost",
-        database="de_practice",
-        user="postgres",
-        password="2502"
+        host=os.getenv("DB_HOST"),
+        database=os.getenv("DB_NAME"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD")
     )
     cursor = conn.cursor()
     
     for _, row in df.iterrows():
         cursor.execute("""
-            INSERT INTO astronauts (spacecraft, astronaut_name, extracted_at)
-            VALUES (%s, %s, %s)
-        """, (row['spacecraft'], row['astronaut_name'], row['extracted_at']))
-    
+ INSERT INTO astronauts (spacecraft, astronaut_name, extracted_at)
+    VALUES (%s, %s, %s)
+    ON CONFLICT (astronaut_name)
+    DO UPDATE SET
+        spacecraft = EXCLUDED.spacecraft,
+        extracted_at = EXCLUDED.extracted_at
+""", (row['spacecraft'], row['astronaut_name'], row['extracted_at']))
     conn.commit()
     cursor.close()
     conn.close()
